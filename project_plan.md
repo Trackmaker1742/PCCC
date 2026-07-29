@@ -96,16 +96,16 @@ The database will be backed by **SQLite** using SQLAlchemy. The tables will incl
 - [x] Add `DocumentCatalogService` and `DocumentUploadService` handling core business logic.
 
 ### Phase 4: API Connection
-- [ ] Implement routing controllers for:
+- [x] Implement routing controllers for:
   - `GET /api/documents` (lists/filters)
   - `POST /api/documents/upload` (submits metadata and files)
   - `PUT /api/documents/{id}/replace` (replaces files)
   - `GET /api/audit-logs` (retrieves changelogs)
   - `GET /api/tenants` and `GET /api/users` (facilitates simulated workspace switches on the frontend)
-- [ ] Connect routers inside [main.py](file:///C:/Users/huutu/Nextcloud/Desktop/PCCC/main.py).
+- [x] Connect routers inside [main.py](file:///C:/Users/huutu/Nextcloud/Desktop/PCCC/main.py).
 
 ### Phase 5: Client-Side Dashboard Update
-- [ ] Update frontend SPA (`templates/index.html`) with interactive features:
+- [x] Update frontend SPA (`templates/index.html`) with interactive features:
   - Role/Tenant selector dashboard.
   - Document catalog list showing status and details.
   - Interactive upload and replacement forms.
