@@ -1,0 +1,264 @@
+@startuml class_diagram_A0_01_A0_02
+
+skinparam roundcorner 6
+skinparam packageStyle rectangle
+skinparam class {
+    BackgroundColor White
+    BorderColor #7A6FD8
+    ArrowColor #444444
+}
+
+title
+Class Diagram - UC-A0-01 (Quan ly danh muc van ban) & UC-A0-02 (Nap / thay the van ban nguon)
+Multi-tenant architecture
+end title
+
+' ===================== DOMAIN LAYER =====================
+package "Domain" {
+
+    class Tenant {
+        -UUID id
+        -String tenCoQuan
+        -String maTenant
+    }
+
+    enum DocumentStatus {
+        CHO_XU_LY_NOI_DUNG
+        HIEU_LUC
+        HET_HIEU_LUC
+        BI_THAY_THE
+    }
+
+    class RegulatoryDocument {
+        -UUID id
+        -String maHieu
+        -String tenDayDu
+        -String coQuanBanHanh
+        -Date ngayBanHanh
+        -Date ngayHieuLuc
+        -DocumentStatus trangThai
+        -String fileUrl
+        -String fileChecksum
+        -UUID tenantId
+        -int version
+        --
+        +updateMetadata(dto) : void
+        +markAsSuperseded(newDocId) : void
+        +attachFile(fileUrl, checksum) : void
+    }
+
+    class User {
+        -UUID id
+        -String hoTen
+        -Role vaiTro
+        -UUID tenantId
+    }
+
+    enum Role {
+        THAM_TRA_VIEN
+        CHUYEN_GIA_PHE_DUYET
+        ADMIN
+    }
+}
+
+' ===================== MULTI-TENANT AMBIENT CONTEXT (Singleton) =====================
+package "Multi-tenant Context" {
+
+    class TenantContext <<(S,#FF7700) Singleton>> {
+        {static} -ThreadLocal<Tenant> current
+        --
+        {static} +getCurrentTenant() : Tenant
+        {static} +setCurrentTenant(Tenant) : void
+    }
+}
+
+' ===================== APPLICATION / USE-CASE LAYER =====================
+package "Application (Use Case)" {
+
+    class DocumentCatalogService {
+        -IDocumentRepository repo
+        -ChangeLogPublisher logPublisher
+        -AccessControlService accessControl
+        --
+        +createDocument(dto) : RegulatoryDocument
+        +updateMetadata(id, dto) : RegulatoryDocument
+        +changeStatus(id, status) : void
+        +listDocuments(criteria) : List<RegulatoryDocument>
+    }
+
+    class DocumentUploadService {
+        -IDocumentRepository repo
+        -IUploadValidator validatorChain
+        -FileStorageFactory storageFactory
+        -ChangeLogPublisher logPublisher
+        -AccessControlService accessControl
+        --
+        +uploadNewDocument(request) : RegulatoryDocument
+        +replaceDocumentFile(id, file) : RegulatoryDocument
+    }
+
+    class AccessControlService {
+        +checkPermission(User, action) : bool
+    }
+
+    class DocumentUploadRequest <<DTO>> {
+        +String maHieu
+        +String tenDayDu
+        +String coQuanBanHanh
+        +Date ngayBanHanh
+        +Date ngayHieuLuc
+        +File file
+        +UUID replacesDocumentId
+    }
+
+    class DocumentFilterCriteria <<DTO>> {
+        +String maHieu
+        +DocumentStatus trangThai
+        +Date tuNgay
+        +Date denNgay
+    }
+}
+
+' ===================== REPOSITORY PATTERN (tenant-scoped persistence) =====================
+package "Persistence (Repository Pattern)" {
+
+    interface IDocumentRepository {
+        +save(doc) : RegulatoryDocument
+        +findById(id) : RegulatoryDocument
+        +findByCode(maHieu, tenantId) : RegulatoryDocument
+        +findAll(criteria) : List<RegulatoryDocument>
+    }
+
+    class DocumentRepositoryImpl {
+        -DataSource ds
+        --
+        +save(doc) : RegulatoryDocument
+        +findById(id) : RegulatoryDocument
+        +findByCode(maHieu, tenantId) : RegulatoryDocument
+        +findAll(criteria) : List<RegulatoryDocument>
+    }
+}
+
+' ===================== CHAIN OF RESPONSIBILITY (upload validation) =====================
+package "Upload Validation (Chain of Responsibility)" {
+
+    interface IUploadValidator {
+        -IUploadValidator next
+        --
+        +setNext(v) : IUploadValidator
+        +validate(request) : void
+    }
+
+    class PdfFormatValidator {
+        +validate(request) : void
+    }
+
+    class DuplicateCodeValidator {
+        +validate(request) : void
+    }
+}
+
+' ===================== STRATEGY + FACTORY METHOD (tenant-aware file storage) =====================
+package "File Storage (Strategy + Factory Method)" {
+
+    interface IFileStorageStrategy {
+        +store(file, tenant) : String
+        +delete(fileUrl) : void
+    }
+
+    class LocalFileStorageStrategy {
+        +store(file, tenant) : String
+        +delete(fileUrl) : void
+    }
+
+    class S3TenantIsolatedStorageStrategy {
+        -String bucketPrefix
+        --
+        +store(file, tenant) : String
+        +delete(fileUrl) : void
+    }
+
+    class FileStorageFactory {
+        {static} +getStrategy(tenant) : IFileStorageStrategy
+    }
+}
+
+' ===================== OBSERVER PATTERN (audit / changelog A0-06) =====================
+package "Audit / Changelog (Observer Pattern)" {
+
+    class ChangeLogPublisher {
+        -List<IChangeLogObserver> observers
+        --
+        +subscribe(observer) : void
+        +publish(event) : void
+    }
+
+    interface IChangeLogObserver {
+        +onDocumentChanged(event) : void
+    }
+
+    class AuditChangeLogObserver {
+        -IChangeLogRepository logRepo
+        --
+        +onDocumentChanged(event) : void
+    }
+
+    class DocumentChangeEvent <<DTO>> {
+        +UUID documentId
+        +String action
+        +UUID performedBy
+    }
+
+    class ChangeLogEntry {
+        -UUID id
+        -UUID documentId
+        -String action
+        -UUID performedBy
+        -DateTime performedAt
+        -String detail
+    }
+}
+
+' ===================== RELATIONSHIPS =====================
+
+RegulatoryDocument "0..*" --> "1" DocumentStatus
+RegulatoryDocument "0..*" --> "0..1" Tenant : thuoc ve >
+User "0..*" --> "0..1" Tenant : thuoc ve >
+User --> Role
+
+DocumentCatalogService ..> TenantContext : uses
+DocumentUploadService ..> TenantContext : uses
+DocumentRepositoryImpl ..> TenantContext : scopes query by
+
+DocumentCatalogService --> IDocumentRepository
+DocumentCatalogService --> ChangeLogPublisher
+DocumentCatalogService --> AccessControlService
+DocumentCatalogService ..> DocumentFilterCriteria : uses
+
+DocumentUploadService --> IDocumentRepository
+DocumentUploadService --> IUploadValidator : chain head >
+DocumentUploadService --> FileStorageFactory
+DocumentUploadService --> ChangeLogPublisher
+DocumentUploadService --> AccessControlService
+DocumentUploadService ..> DocumentUploadRequest : uses
+
+AccessControlService ..> User : checks
+
+DocumentRepositoryImpl ..|> IDocumentRepository
+DocumentRepositoryImpl --> RegulatoryDocument : manages >
+
+IUploadValidator o-- IUploadValidator : next
+PdfFormatValidator ..|> IUploadValidator
+DuplicateCodeValidator ..|> IUploadValidator
+
+FileStorageFactory ..> IFileStorageStrategy : creates
+LocalFileStorageStrategy ..|> IFileStorageStrategy
+S3TenantIsolatedStorageStrategy ..|> IFileStorageStrategy
+
+ChangeLogPublisher o-- IChangeLogObserver : notifies
+AuditChangeLogObserver ..|> IChangeLogObserver
+AuditChangeLogObserver --> ChangeLogEntry : creates >
+ChangeLogPublisher ..> DocumentChangeEvent : publishes
+ChangeLogEntry --> RegulatoryDocument : references >
+
+@enduml
