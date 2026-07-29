@@ -70,7 +70,7 @@ class DocumentCatalogService:
         
         doc = self.repo.find_by_id(doc_id, db)
         if not doc:
-            raise HTTPException(status_code=404, detail="Regulatory document not found")
+            raise HTTPException(status_code=404, detail="Không tìm thấy văn bản quy phạm pháp luật")
             
         doc.update_metadata(dto)
         saved_doc = self.repo.save(doc, db)
@@ -97,7 +97,7 @@ class DocumentCatalogService:
         
         doc = self.repo.find_by_id(doc_id, db)
         if not doc:
-            raise HTTPException(status_code=404, detail="Regulatory document not found")
+            raise HTTPException(status_code=404, detail="Không tìm thấy văn bản quy phạm pháp luật")
             
         old_status = doc.trang_thai
         doc.trang_thai = status
@@ -109,7 +109,7 @@ class DocumentCatalogService:
                 document_id=doc.id,
                 action="STATUS_CHANGE",
                 performed_by=user.id,
-                detail=f"Changed status from '{old_status.value}' to '{status.value}'"
+                detail=f"Thay đổi trạng thái từ '{old_status.value}' sang '{status.value}'"
             ),
             db
         )

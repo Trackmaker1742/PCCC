@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Multi-tenant PCCC Regulatory Document Catalog and Upload System.">
-    <title>PCCC Document Portal</title>
+    <meta name="description" content="Cổng thông tin danh mục và nạp văn bản quy phạm pháp luật PCCC đa đơn vị.">
+    <title>Cổng Thông Tin Văn Bản PCCC</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -698,28 +698,28 @@
 </head>
 <body>
 
-    <!-- Header bar with context selector simulation -->
+    <!-- Header bar với chức năng giả lập ngữ cảnh -->
     <header>
         <div class="brand">
             <i class="fa-solid fa-shield-halved"></i>
-            <span>PCCC REGULATORY PORTAL</span>
+            <span>CỔNG THÔNG TIN VĂN BẢN PCCC</span>
         </div>
         
         <div class="simulator-controls">
-            <!-- Simulated User Context -->
+            <!-- Giả lập tài khoản người dùng -->
             <div class="context-selector">
-                <label for="userSelect">Simulated User Profile</label>
+                <label for="userSelect">Tài Khoản Giả Lập</label>
                 <select id="userSelect" onchange="onUserChanged()">
-                    <!-- Populated dynamically -->
+                    <!-- Được điền động qua JS -->
                 </select>
             </div>
             
-            <!-- Display current tenant active scope -->
+            <!-- Hiển thị đơn vị (tenant) đang hoạt động -->
             <div class="context-selector">
-                <label>Active Tenant Isolation</label>
+                <label>Đơn Vị Đang Hoạt Động</label>
                 <div class="profile-badge">
                     <i class="fa-solid fa-server"></i>
-                    <span id="activeTenantLabel">Resolving...</span>
+                    <span id="activeTenantLabel">Đang tải...</span>
                 </div>
             </div>
         </div>
@@ -728,53 +728,53 @@
     <!-- Main Grid Dashboard -->
     <div class="dashboard-container">
         
-        <!-- Left Panel: Context Upload Actions -->
+        <!-- Khối bên trái: Nạp Văn Bản mới -->
         <aside class="panel">
             <div class="panel-title">
                 <i class="fa-solid fa-cloud-arrow-up"></i>
-                <span>Publish Document (UC-A0-02)</span>
+                <span>Nạp Văn Bản Mới (UC-A0-02)</span>
             </div>
             
             <form id="uploadForm" onsubmit="onUploadSubmitted(event)">
                 <div class="form-group">
-                    <label for="docCode">Official Code (Mã Hiệu) *</label>
-                    <input type="text" id="docCode" placeholder="e.g., QCVN 06:2022/BXD" required>
+                    <label for="docCode">Mã Hiệu Văn Bản *</label>
+                    <input type="text" id="docCode" placeholder="Ví dụ: QCVN 06:2022/BXD" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="docTitle">Full Title (Tên Đầy Đủ) *</label>
-                    <textarea id="docTitle" placeholder="e.g., Quy chuẩn kỹ thuật quốc gia về an toàn cháy cho nhà và công trình..." required style="min-height: 70px;"></textarea>
+                    <label for="docTitle">Tên Đầy Đủ Văn Bản *</label>
+                    <textarea id="docTitle" placeholder="Ví dụ: Quy chuẩn kỹ thuật quốc gia về an toàn cháy cho nhà và công trình..." required style="min-height: 70px;"></textarea>
                 </div>
                 
                 <div class="form-group">
-                    <label for="docIssuer">Issuing Agency (Cơ Quan Ban Hành) *</label>
-                    <input type="text" id="docIssuer" placeholder="e.g., Bộ Xây dựng" required>
+                    <label for="docIssuer">Cơ Quan Ban Hành *</label>
+                    <input type="text" id="docIssuer" placeholder="Ví dụ: Bộ Xây dựng" required>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
                     <div class="form-group">
-                        <label for="docReleaseDate">Release Date *</label>
+                        <label for="docReleaseDate">Ngày Ban Hành *</label>
                         <input type="text" id="docReleaseDate" placeholder="dd/mm/yyyy" pattern="\d{2}/\d{2}/\d{4}" required>
                     </div>
                     <div class="form-group">
-                        <label for="docEffectiveDate">Effective Date *</label>
+                        <label for="docEffectiveDate">Ngày Có Hiệu Lực *</label>
                         <input type="text" id="docEffectiveDate" placeholder="dd/mm/yyyy" pattern="\d{2}/\d{2}/\d{4}" required>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="supersedeSelect">Supersedes Document (Optional)</label>
+                    <label for="supersedeSelect">Thay Thế Cho Văn Bản (Không bắt buộc)</label>
                     <select id="supersedeSelect">
-                        <option value="">-- None (New Record) --</option>
-                        <!-- Populated with current tenant's active documents -->
+                        <option value="">-- Không (Văn bản mới) --</option>
+                        <!-- Được điền động qua JS -->
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label>PDF Document Source *</label>
+                    <label>Chọn File PDF Văn Bản *</label>
                     <label for="docFileInput" class="file-upload-trigger">
                         <i class="fa-regular fa-file-pdf"></i>
-                        <span id="filePromptText">Select PDF File</span>
+                        <span id="filePromptText">Chọn File PDF</span>
                         <span class="file-selected-info" id="fileSelectedInfo"></span>
                     </label>
                     <input type="file" id="docFileInput" accept=".pdf" onchange="onFileSelected(event)" required>
@@ -782,7 +782,7 @@
 
                 <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;" id="uploadSubmitBtn">
                     <i class="fa-solid fa-paper-plane"></i>
-                    <span>Publish Document</span>
+                    <span>Nạp Văn Bản</span>
                 </button>
             </form>
         </aside>
@@ -792,67 +792,67 @@
             <!-- Filters Bar -->
             <section class="filters-panel">
                 <div class="filter-item" style="flex: 2; min-width: 200px;">
-                    <label for="filterCode">Search by Code</label>
-                    <input type="text" id="filterCode" placeholder="Search code..." oninput="fetchCatalog()">
+                    <label for="filterCode">Tìm Kiếm Theo Mã Hiệu</label>
+                    <input type="text" id="filterCode" placeholder="Nhập mã hiệu cần tìm..." oninput="fetchCatalog()">
                 </div>
                 
                 <div class="filter-item">
-                    <label for="filterStatus">Status</label>
+                    <label for="filterStatus">Trạng Thái</label>
                     <select id="filterStatus" onchange="fetchCatalog()">
-                        <option value="">All Statuses</option>
-                        <option value="CHO_XU_LY_NOI_DUNG">Pending Review</option>
-                        <option value="HIEU_LUC">Active / Effective</option>
-                        <option value="HET_HIEU_LUC">Expired</option>
-                        <option value="BI_THAY_THE">Superseded</option>
+                        <option value="">Tất Cả Trạng Thái</option>
+                        <option value="CHO_XU_LY_NOI_DUNG">Chờ Xử Lý Nội Dung</option>
+                        <option value="HIEU_LUC">Đang Có Hiệu Lực</option>
+                        <option value="HET_HIEU_LUC">Hết Hiệu Lực</option>
+                        <option value="BI_THAY_THE">Bị Thay Thế</option>
                     </select>
                 </div>
 
                 <div class="filter-item">
-                    <label for="filterStartDate">From Date</label>
+                    <label for="filterStartDate">Từ Ngày</label>
                     <input type="text" id="filterStartDate" placeholder="dd/mm/yyyy">
                 </div>
 
                 <div class="filter-item">
-                    <label for="filterEndDate">To Date</label>
+                    <label for="filterEndDate">Đến Ngày</label>
                     <input type="text" id="filterEndDate" placeholder="dd/mm/yyyy">
                 </div>
 
                 <button class="btn btn-secondary" onclick="resetFilters()">
                     <i class="fa-solid fa-arrow-rotate-left"></i>
-                    <span>Reset</span>
+                    <span>Đặt Lại</span>
                 </button>
             </section>
 
-            <!-- Document Catalog Section -->
+            <!-- Danh mục văn bản -->
             <section class="catalog-container">
                 <div class="panel-title" style="border: none; padding-bottom: 0;">
                     <i class="fa-solid fa-cabinet-filing" style="color: var(--accent-primary);"></i>
-                    <span>Document Catalog (UC-A0-01)</span>
+                    <span>Danh Mục Văn Bản Quy Phạm (UC-A0-01)</span>
                 </div>
                 
                 <div class="catalog-list" id="catalogList">
-                    <!-- Cards will be populated dynamically -->
+                    <!-- Các thẻ văn bản được điền động qua JS -->
                 </div>
             </section>
 
-            <!-- Audit Trail Timeline Section -->
+            <!-- Khối hiển thị nhật ký Audit -->
             <section class="audit-section">
                 <div class="panel-title" style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
                     <i class="fa-solid fa-list-check" style="color: var(--accent-secondary);"></i>
-                    <span>Agency Audit Trails (Observer Logs)</span>
+                    <span>Nhật Ký Đơn Vị (Observer Logs)</span>
                 </div>
                 <div class="audit-list" id="auditList">
-                    <!-- Populated dynamically -->
+                    <!-- Nhật ký hoạt động được điền động qua JS -->
                 </div>
             </section>
         </main>
     </div>
 
-    <!-- Modal for Source PDF Replacement -->
+    <!-- Modal thay thế file PDF nguồn -->
     <div class="modal" id="replaceModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 style="font-size: 1.15rem; font-weight: 600;">Replace Document Source PDF</h3>
+                <h3 style="font-size: 1.15rem; font-weight: 600;">Thay Thế File PDF Nguồn</h3>
                 <button class="btn" style="background: transparent; color: var(--text-secondary); cursor: pointer; padding: 0.25rem;" onclick="closeReplaceModal()">
                     <i class="fa-solid fa-xmark" style="font-size: 1.25rem;"></i>
                 </button>
@@ -860,23 +860,23 @@
             
             <input type="hidden" id="replaceDocId">
             <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">
-                You are updating the file attachment for document <strong id="replaceDocCode" style="color: var(--accent-primary);"></strong>. This action will increment the document's version number and reset its status to <strong>Pending Review</strong>.
+                Bạn đang cập nhật tệp đính kèm cho văn bản <strong id="replaceDocCode" style="color: var(--accent-primary);"></strong>. Hành động này sẽ tăng số phiên bản của văn bản và đặt lại trạng thái về <strong>Chờ Xử Lý Nội Dung</strong>.
             </p>
             
             <form id="replaceForm" onsubmit="onReplaceSubmitted(event)">
                 <div class="form-group">
-                    <label>New PDF Document Source *</label>
+                    <label>Chọn File PDF Nguồn Mới *</label>
                     <label for="replaceFileInput" class="file-upload-trigger">
                         <i class="fa-regular fa-file-pdf"></i>
-                        <span id="replaceFilePromptText">Select New PDF File</span>
+                        <span id="replaceFilePromptText">Chọn File PDF Mới</span>
                         <span class="file-selected-info" id="replaceFileSelectedInfo"></span>
                     </label>
                     <input type="file" id="replaceFileInput" accept=".pdf" onchange="onReplaceFileSelected(event)" required>
                 </div>
 
                 <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 0.5rem;">
-                    <button type="button" class="btn btn-secondary btn-sm" onclick="closeReplaceModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary btn-sm" id="replaceSubmitBtn">Update Source</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="closeReplaceModal()">Hủy</button>
+                    <button type="submit" class="btn btn-primary btn-sm" id="replaceSubmitBtn">Cập Nhật Nguồn</button>
                 </div>
             </form>
         </div>
@@ -946,13 +946,19 @@
                 // Populate users list
                 userSelect.innerHTML = mockUsers.map(u => {
                     const tenant = mockTenants.find(t => t.id === u.tenant_id);
-                    const tenantName = tenant ? tenant.ma_tenant : 'Unknown';
-                    return `<option value="${u.id}">${u.ho_ten} (${tenantName} - ${u.vai_tro})</option>`;
+                    const tenantName = tenant ? tenant.ma_tenant : 'Không rõ';
+                    
+                    let roleLabel = u.vai_tro;
+                    if (u.vai_tro === 'ADMIN') roleLabel = 'Quản trị viên';
+                    else if (u.vai_tro === 'THAM_TRA_VIEN') roleLabel = 'Thẩm tra viên';
+                    else if (u.vai_tro === 'CHUYEN_GIA_PHE_DUYET') roleLabel = 'Phê duyệt viên';
+
+                    return `<option value="${u.id}">${u.ho_ten} (${tenantName} - ${roleLabel})</option>`;
                 }).join('');
                 
             } catch (err) {
                 console.error(err);
-                showToast("Could not load simulation parameters.", "error");
+                showToast("Không thể tải thông tin cấu hình giả lập.", "error");
             }
         }
 
@@ -994,7 +1000,7 @@
             // Disable submit form button if user is not inspector/admin
             if (uploadBtn) {
                 uploadBtn.disabled = !isInspector;
-                uploadBtn.querySelector('span').textContent = isInspector ? "Publish Document" : "Disabled (Inspector Only)";
+                uploadBtn.querySelector('span').textContent = isInspector ? "Nạp Văn Bản" : "Vô Hiệu Hóa (Chỉ Thẩm Tra Viên)";
             }
         }
 
@@ -1025,7 +1031,7 @@
             if (file) {
                 filePromptText.style.display = 'none';
                 fileSelectedInfo.style.display = 'block';
-                fileSelectedInfo.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                fileSelectedInfo.textContent = `Đã chọn: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
             } else {
                 filePromptText.style.display = 'block';
                 fileSelectedInfo.style.display = 'none';
@@ -1037,7 +1043,7 @@
             if (file) {
                 replaceFilePromptText.style.display = 'none';
                 replaceFileSelectedInfo.style.display = 'block';
-                replaceFileSelectedInfo.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                replaceFileSelectedInfo.textContent = `Đã chọn: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
             } else {
                 replaceFilePromptText.style.display = 'block';
                 replaceFileSelectedInfo.style.display = 'none';
@@ -1113,7 +1119,7 @@
                 if (endYMD) url += `den_ngay=${encodeURIComponent(endYMD)}&`;
 
                 const res = await fetch(url, { headers: getHeaders() });
-                if (!res.ok) throw new Error("Failed to load catalog records.");
+                if (!res.ok) throw new Error("Tải danh mục văn bản thất bại.");
                 
                 const docs = await res.json();
                 renderCatalog(docs);
@@ -1129,7 +1135,7 @@
             // Only suggest active/effective documents to supersede
             const activeDocs = docs.filter(d => d.trang_thai === 'HIEU_LUC');
             
-            supersedeSelect.innerHTML = '<option value="">-- None (New Record) --</option>' + 
+            supersedeSelect.innerHTML = '<option value="">-- Không (Văn bản mới) --</option>' + 
                 activeDocs.map(d => `<option value="${d.id}">${d.ma_hieu} v${d.version} - ${d.ten_day_du.substring(0, 45)}...</option>`).join('');
         }
 
@@ -1160,7 +1166,7 @@
                 catalogList.innerHTML = `
                     <div class="empty-state">
                         <i class="fa-regular fa-folder-open"></i>
-                        <p>No regulatory records found in this agency catalog.</p>
+                        <p>Không tìm thấy văn bản quy phạm nào trong danh mục cơ quan này.</p>
                     </div>
                 `;
                 return;
@@ -1171,16 +1177,16 @@
 
             catalogList.innerHTML = docs.map((doc, idx) => {
                 let statusClass = 'pending';
-                let statusLabel = 'Review Pending';
-                if (doc.trang_thai === 'HIEU_LUC') { statusClass = 'active'; statusLabel = 'Active / Effective'; }
-                else if (doc.trang_thai === 'HET_HIEU_LUC') { statusClass = 'expired'; statusLabel = 'Expired'; }
-                else if (doc.trang_thai === 'BI_THAY_THE') { statusClass = 'superseded'; statusLabel = 'Superseded'; }
+                let statusLabel = 'Chờ xử lý nội dung';
+                if (doc.trang_thai === 'HIEU_LUC') { statusClass = 'active'; statusLabel = 'Đang có hiệu lực'; }
+                else if (doc.trang_thai === 'HET_HIEU_LUC') { statusClass = 'expired'; statusLabel = 'Hết hiệu lực'; }
+                else if (doc.trang_thai === 'BI_THAY_THE') { statusClass = 'superseded'; statusLabel = 'Bị thay thế'; }
 
                 return `
                     <div class="doc-card" style="animation-delay: ${idx * 0.05}s">
                         <div class="doc-header">
                             <div class="doc-title-sec">
-                                <span class="doc-code">${escapeHtml(doc.ma_hieu)} <span style="color: var(--text-muted); font-weight: normal; margin-left: 0.5rem;">Version ${doc.version}</span></span>
+                                <span class="doc-code">${escapeHtml(doc.ma_hieu)} <span style="color: var(--text-muted); font-weight: normal; margin-left: 0.5rem;">Phiên bản ${doc.version}</span></span>
                                 <h3 class="doc-title">${escapeHtml(doc.ten_day_du)}</h3>
                             </div>
                             <span class="status-badge ${statusClass}">${statusLabel}</span>
@@ -1188,15 +1194,15 @@
                         
                         <div class="doc-meta-grid">
                             <div class="meta-item">
-                                <span class="meta-label">Issuing Authority</span>
+                                <span class="meta-label">Cơ quan ban hành</span>
                                 <span class="meta-val">${escapeHtml(doc.co_quan_ban_hanh)}</span>
                             </div>
                             <div class="meta-item">
-                                <span class="meta-label">Release Date</span>
+                                <span class="meta-label">Ngày ban hành</span>
                                 <span class="meta-val">${formatDate(doc.ngay_ban_hanh)}</span>
                             </div>
                             <div class="meta-item">
-                                <span class="meta-label">Effective Date</span>
+                                <span class="meta-label">Ngày có hiệu lực</span>
                                 <span class="meta-val">${formatDate(doc.ngay_hieu_luc)}</span>
                             </div>
                         </div>
@@ -1205,39 +1211,39 @@
                         <div class="file-section">
                             <a href="${doc.file_url}" target="_blank" class="file-link">
                                 <i class="fa-solid fa-file-pdf" style="font-size: 1.1rem;"></i>
-                                <span>Download Source PDF</span>
+                                <span>Tải File PDF Nguồn</span>
                             </a>
-                            <span class="checksum-info" title="SHA-256 Checksum: ${doc.file_checksum}">
+                            <span class="checksum-info" title="Mã SHA-256: ${doc.file_checksum}">
                                 <i class="fa-solid fa-fingerprint"></i>
                                 ${doc.file_checksum.substring(0, 10)}...
                             </span>
                         </div>
                         ` : `
                         <div class="file-section" style="color: var(--status-expired);">
-                            <span><i class="fa-solid fa-triangle-exclamation"></i> No PDF attached</span>
+                            <span><i class="fa-solid fa-triangle-exclamation"></i> Chưa đính kèm file PDF</span>
                         </div>
                         `}
 
-                        <!-- Card Action buttons based on active roles -->
+                        <!-- Các hành động của thẻ dựa trên phân quyền người dùng -->
                         <div class="card-actions">
                             ${isInspector && doc.trang_thai !== 'BI_THAY_THE' ? `
                                 <button class="btn btn-secondary btn-sm" onclick="openReplaceModal('${doc.id}', '${escapeHtml(doc.ma_hieu)}')">
                                     <i class="fa-solid fa-file-signature"></i>
-                                    Replace PDF
+                                    Thay thế PDF
                                 </button>
                             ` : ''}
 
                             ${isApprover && doc.trang_thai === 'CHO_XU_LY_NOI_DUNG' ? `
                                 <button class="btn btn-primary btn-sm" style="background: var(--status-active); box-shadow: none;" onclick="updateStatus('${doc.id}', 'HIEU_LUC')">
                                     <i class="fa-solid fa-circle-check"></i>
-                                    Approve
+                                    Phê duyệt
                                 </button>
                             ` : ''}
 
                             ${isApprover && doc.trang_thai === 'HIEU_LUC' ? `
                                 <button class="btn btn-secondary btn-sm" style="color: var(--status-expired); border-color: rgba(239, 68, 68, 0.2);" onclick="updateStatus('${doc.id}', 'HET_HIEU_LUC')">
                                     <i class="fa-solid fa-box-archive"></i>
-                                    Archive / Expire
+                                    Lưu trữ / Thu hồi
                                 </button>
                             ` : ''}
                         </div>
@@ -1262,27 +1268,28 @@
                 renderAudits(logs);
             } catch (err) {
                 console.error(err);
-                auditList.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem; text-align: center; padding: 2rem 0;">Failed to load audit trails.</div>';
+                auditList.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem; text-align: center; padding: 2rem 0;">Tải nhật ký hoạt động thất bại.</div>';
             }
         }
 
         // Render audit items
         function renderAudits(logs) {
             if (!logs || logs.length === 0) {
-                auditList.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 2rem 0;"><i class="fa-regular fa-clock" style="margin-right: 0.25rem;"></i> No logged actions in this agency yet.</div>';
+                auditList.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 2rem 0;"><i class="fa-regular fa-clock" style="margin-right: 0.25rem;"></i> Chưa ghi nhận hành động nào tại cơ quan này.</div>';
                 return;
             }
 
             auditList.innerHTML = logs.map(log => {
                 let tagClass = 'create';
                 let tagLabel = log.action;
-                if (log.action === 'UPDATE') tagClass = 'update';
-                else if (log.action === 'REPLACE') tagClass = 'replace';
-                else if (log.action === 'STATUS_CHANGE') { tagClass = 'status_change'; tagLabel = 'Status'; }
+                if (log.action === 'CREATE') tagLabel = 'Tạo mới';
+                else if (log.action === 'UPDATE') { tagClass = 'update'; tagLabel = 'Cập nhật'; }
+                else if (log.action === 'REPLACE') { tagClass = 'replace'; tagLabel = 'Thay thế'; }
+                else if (log.action === 'STATUS_CHANGE') { tagClass = 'status_change'; tagLabel = 'Trạng thái'; }
 
                 // Map performer ID to mock names (show full name for Vietnamese names)
                 const performer = mockUsers.find(u => u.id === log.performed_by);
-                const performerName = performer ? performer.ho_ten : 'System';
+                const performerName = performer ? performer.ho_ten : 'Hệ thống';
 
                 return `
                     <div class="audit-item">
@@ -1290,7 +1297,7 @@
                             <span class="action-tag ${tagClass}">${tagLabel}</span>
                             <span>${formatDateTime(log.performed_at)}</span>
                         </div>
-                        <p style="font-weight: 500;">Performer: <span style="color: var(--accent-primary);">${performerName}</span></p>
+                        <p style="font-weight: 500;">Người thực hiện: <span style="color: var(--accent-primary);">${performerName}</span></p>
                         <p style="color: var(--text-secondary); font-size: 0.8rem; line-height: 1.3;">${escapeHtml(log.detail)}</p>
                     </div>
                 `;
@@ -1303,7 +1310,7 @@
             
             const file = docFileInput.files[0];
             if (!file) {
-                showToast("Please choose a PDF document source.", "error");
+                showToast("Vui lòng chọn file PDF nguồn.", "error");
                 return;
             }
 
@@ -1317,7 +1324,7 @@
             const effective = parseInputDate(effectiveRaw);
             
             if (!release || !effective) {
-                showToast("Please enter valid dates in dd/mm/yyyy format.", "error");
+                showToast("Vui lòng nhập ngày hợp lệ dạng dd/mm/yyyy.", "error");
                 return;
             }
             
@@ -1337,7 +1344,7 @@
 
             const submitBtn = document.getElementById('uploadSubmitBtn');
             submitBtn.disabled = true;
-            submitBtn.querySelector('span').textContent = 'Uploading...';
+            submitBtn.querySelector('span').textContent = 'Đang nạp lên...';
 
             try {
                 const res = await fetch('/api/documents/upload', {
@@ -1351,10 +1358,10 @@
 
                 if (!res.ok) {
                     const err = await res.json();
-                    throw new Error(err.detail || "Validation or upload failed.");
+                    throw new Error(err.detail || "Kiểm tra dữ liệu hoặc tải lên thất bại.");
                 }
 
-                showToast("Regulatory document published successfully!");
+                showToast("Đã nạp văn bản quy phạm thành công!");
                 document.getElementById('uploadForm').reset();
                 filePromptText.style.display = 'block';
                 fileSelectedInfo.style.display = 'none';
@@ -1366,7 +1373,7 @@
                 showToast(err.message, "error");
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.querySelector('span').textContent = 'Publish Document';
+                submitBtn.querySelector('span').textContent = 'Nạp Văn Bản';
             }
         }
 
@@ -1380,10 +1387,10 @@
 
                 if (!res.ok) {
                     const err = await res.json();
-                    throw new Error(err.detail || "Status transition failed.");
+                    throw new Error(err.detail || "Chuyển trạng thái thất bại.");
                 }
 
-                showToast(`Document updated to status: ${newStatus}`);
+                showToast(`Đã chuyển trạng thái văn bản thành công.`);
                 await fetchCatalog();
                 await fetchAudits();
             } catch (err) {
@@ -1415,7 +1422,7 @@
             const docId = document.getElementById('replaceDocId').value;
             const file = replaceFileInput.files[0];
             if (!file) {
-                showToast("Please choose a new PDF file source.", "error");
+                showToast("Vui lòng chọn file PDF nguồn mới.", "error");
                 return;
             }
 
@@ -1424,7 +1431,7 @@
 
             const submitBtn = document.getElementById('replaceSubmitBtn');
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Updating...';
+            submitBtn.textContent = 'Đang cập nhật...';
 
             try {
                 const res = await fetch(`/api/documents/${docId}/replace`, {
@@ -1438,10 +1445,10 @@
 
                 if (!res.ok) {
                     const err = await res.json();
-                    throw new Error(err.detail || "PDF upload replacement failed.");
+                    throw new Error(err.detail || "Thay thế file PDF thất bại.");
                 }
 
-                showToast("Source PDF replaced. Version incremented.");
+                showToast("Đã thay thế file PDF nguồn và tăng phiên bản!");
                 closeReplaceModal();
                 await fetchCatalog();
                 await fetchAudits();

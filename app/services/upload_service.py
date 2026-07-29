@@ -83,7 +83,7 @@ class DocumentUploadService:
                         document_id=old_doc.id,
                         action="STATUS_CHANGE",
                         performed_by=user.id,
-                        detail=f"Marked as BI_THAY_THE. Superseded by code '{doc.ma_hieu}'"
+                        detail=f"Đã đánh dấu là 'BI_THAY_THE'. Được thay thế bởi mã hiệu '{doc.ma_hieu}'"
                     ),
                     db
                 )
@@ -96,7 +96,7 @@ class DocumentUploadService:
                 document_id=saved_doc.id,
                 action="CREATE",
                 performed_by=user.id,
-                detail=f"Uploaded source document '{filename}' with code '{saved_doc.ma_hieu}'"
+                detail=f"Đã tải lên '{filename}' với mã hiệu '{saved_doc.ma_hieu}'"
             ),
             db
         )
@@ -120,7 +120,7 @@ class DocumentUploadService:
         
         doc = self.repo.find_by_id(doc_id, db)
         if not doc:
-            raise HTTPException(status_code=404, detail="Regulatory document not found")
+            raise HTTPException(status_code=404, detail="Không tìm thấy văn bản quy phạm pháp luật")
             
         # 1. Run PDF format check only (skip duplicate code check since we replace the file of the same document)
         pdf_only_validator = PdfFormatValidator()
@@ -149,7 +149,7 @@ class DocumentUploadService:
                 document_id=saved_doc.id,
                 action="REPLACE",
                 performed_by=user.id,
-                detail=f"Replaced source PDF with '{filename}'. Incremented version to {saved_doc.version}"
+                detail=f"Thay thế tệp PDF nguồn bằng '{filename}'. Đã tăng phiên bản lên {saved_doc.version}"
             ),
             db
         )
