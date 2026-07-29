@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A premium and minimal text storage web application built with FastAPI.">
+    <title>Scribe | Minimal Text Storage</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-primary: #0a0f1d;
+            --bg-secondary: rgba(20, 27, 45, 0.6);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(99, 102, 241, 0.4);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --accent-color: #6366f1;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --shadow-primary: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+            --font-main: 'Outfit', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
+            padding: 2rem 1rem;
+        }
+
+        /* Decorative background elements */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+            top: -100px;
+            right: -100px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, rgba(0, 0, 0, 0) 70%);
+            bottom: -150px;
+            left: -150px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Card container */
+        .card {
+            background: var(--bg-secondary);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-primary);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(99, 102, 241, 0.2);
+        }
+
+        /* Header styling */
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+            filter: drop-shadow(0 2px 8px rgba(99, 102, 241, 0.3));
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #ffffff, #d1d5db);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 400;
+        }
+
+        /* Form styling */
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 1rem 1.25rem;
+            background: rgba(10, 15, 29, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            font-size: 1rem;
+            resize: vertical;
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        textarea:focus {
+            border-color: var(--border-hover);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+            background: rgba(10, 15, 29, 0.8);
+        }
+
+        /* Textarea characters count */
+        .char-counter {
+            position: absolute;
+            bottom: -22px;
+            right: 8px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Submit Button */
+        button {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 16px;
+            background: var(--accent-gradient);
+            color: white;
+            font-family: var(--font-main);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.45);
+            filter: brightness(1.1);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #27272a;
+            color: #71717a;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            filter: none;
+        }
+
+        /* Section dividers */
+        .divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 2rem 0;
+        }
+
+        /* Stored Entries list */
+        .entries-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .entries-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 0.25rem;
+        }
+
+        /* Scrollbar styles */
+        .entries-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .entries-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .entries-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        .entries-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .entry-card {
+            background: rgba(10, 15, 29, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .entry-card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(10, 15, 29, 0.6);
+            transform: translateX(2px);
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .entry-time {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .entry-content {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            border: 1px dashed var(--border-color);
+            border-radius: 16px;
+        }
+
+        .empty-icon {
+            font-size: 2rem;
+            color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            background: #1e1b4b;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            z-index: 100;
+            transform: translateY(150%);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+
+        .toast.success {
+            border-color: rgba(16, 185, 129, 0.3);
+            background: #064e3b;
+        }
+
+        .toast.error {
+            border-color: rgba(239, 68, 68, 0.3);
+            background: #7f1d1d;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="card">
+            <!-- Header -->
+            <div class="header">
+                <div class="logo-icon"><i class="fa-solid fa-feather-pointed"></i></div>
+                <h1>Scribe</h1>
+                <p class="subtitle">Quickly capture and persist your thoughts</p>
+            </div>
+
+            <!-- Form -->
+            <form id="scribeForm">
+                <div class="form-group">
+                    <label for="textInput">Your Input</label>
+                    <div class="input-wrapper">
+                        <textarea 
+                            id="textInput" 
+                            name="text" 
+                            placeholder="Type something meaningful..." 
+                            maxlength="1000"
+                            required
+                        ></textarea>
+                        <span class="char-counter" id="charCounter">0 / 1000</span>
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn">
+                    <span>Store Text</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="divider"></div>
+
+            <!-- Stored Items Section -->
+            <div class="entries-section">
+                <div class="section-title">
+                    <i class="fa-solid fa-box-archive" style="color: var(--accent-color);"></i>
+                    <span>Saved Records</span>
+                </div>
+                
+                <div class="entries-list" id="entriesList">
+                    <!-- Dynamic entries will be inserted here -->
+                    <div class="empty-state">
+                        <div class="empty-icon"><i class="fa-regular fa-folder-open"></i></div>
+                        <p>No records stored yet.</p>
+                        <p style="font-size: 0.8rem; opacity: 0.7;">Submit text above to create the first record.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast">
+        <i id="toastIcon" class="fa-solid"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        const scribeForm = document.getElementById('scribeForm');
+        const textInput = document.getElementById('textInput');
+        const charCounter = document.getElementById('charCounter');
+        const submitBtn = document.getElementById('submitBtn');
+        const entriesList = document.getElementById('entriesList');
+        const toast = document.getElementById('toast');
+        const toastIcon = document.getElementById('toastIcon');
+        const toastMessage = document.getElementById('toastMessage');
+
+        // Character count handler
+        textInput.addEventListener('input', () => {
+            const length = textInput.value.length;
+            charCounter.textContent = `${length} / 1000`;
+        });
+
+        // Show Toast Utility
+        function showToast(message, type = 'success') {
+            toastMessage.textContent = message;
+            toast.className = `toast show ${type}`;
+            
+            if (type === 'success') {
+                toastIcon.className = 'fa-solid fa-circle-check';
+                toastIcon.style.color = '#34d399';
+            } else {
+                toastIcon.className = 'fa-solid fa-circle-exclamation';
+                toastIcon.style.color = '#f87171';
+            }
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Format date string nicely
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString(undefined, { 
+                month: 'short', 
+                day: 'numeric' 
+            }) + ' ' + date.toLocaleTimeString(undefined, {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Render entries lists
+        function renderEntries(entries) {
+            if (!entries || entries.length === 0) {
+                entriesList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon"><i class="fa-regular fa-folder-open"></i></div>
+                        <p>No records stored yet.</p>
+                        <p style="font-size: 0.8rem; opacity: 0.7;">Submit text above to create the first record.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort entries newest first
+            const sortedEntries = [...entries].reverse();
+
+            entriesList.innerHTML = sortedEntries.map((entry, index) => `
+                <div class="entry-card" style="animation-delay: ${index * 0.05}s">
+                    <div class="entry-header">
+                        <span class="entry-index">#${entries.length - index}</span>
+                        <span class="entry-time">
+                            <i class="fa-regular fa-clock"></i>
+                            ${formatDate(entry.timestamp)}
+                        </span>
+                    </div>
+                    <div class="entry-content">${escapeHtml(entry.text)}</div>
+                </div>
+            `).join('');
+        }
+
+        // Escape HTML helper to prevent XSS
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        // Fetch inputs from API
+        async function fetchInputs() {
+            try {
+                const response = await fetch('/api/inputs');
+                if (!response.ok) throw new Error('Failed to load saved records');
+                const data = await response.json();
+                renderEntries(data.inputs);
+            } catch (error) {
+                console.error(error);
+                showToast(error.message, 'error');
+            }
+        }
+
+        // Submit form handler
+        scribeForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const textValue = textInput.value.trim();
+            if (!textValue) return;
+
+            // Disable button during request
+            submitBtn.disabled = true;
+            submitBtn.querySelector('span').textContent = 'Storing...';
+
+            try {
+                const response = await fetch('/api/inputs', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: textValue })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.detail || 'Failed to save your text');
+                }
+
+                const data = await response.json();
+                
+                // Reset form
+                textInput.value = '';
+                charCounter.textContent = '0 / 1000';
+                
+                // Show toast & refresh entries
+                showToast('Text stored successfully!');
+                renderEntries(data.inputs);
+            } catch (error) {
+                console.error(error);
+                showToast(error.message, 'error');
+            } finally {
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.querySelector('span').textContent = 'Store Text';
+            }
+        });
+
+        // Initial fetch on load
+        window.addEventListener('DOMContentLoaded', fetchInputs);
+    </script>
+</body>
+</html>
