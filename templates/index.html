@@ -754,11 +754,11 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
                     <div class="form-group">
                         <label for="docReleaseDate">Release Date *</label>
-                        <input type="date" id="docReleaseDate" required>
+                        <input type="text" id="docReleaseDate" placeholder="dd/mm/yyyy" pattern="\d{2}/\d{2}/\d{4}" required>
                     </div>
                     <div class="form-group">
                         <label for="docEffectiveDate">Effective Date *</label>
-                        <input type="date" id="docEffectiveDate" required>
+                        <input type="text" id="docEffectiveDate" placeholder="dd/mm/yyyy" pattern="\d{2}/\d{2}/\d{4}" required>
                     </div>
                 </div>
 
@@ -809,12 +809,12 @@
 
                 <div class="filter-item">
                     <label for="filterStartDate">From Date</label>
-                    <input type="date" id="filterStartDate" onchange="fetchCatalog()">
+                    <input type="text" id="filterStartDate" placeholder="dd/mm/yyyy">
                 </div>
 
                 <div class="filter-item">
                     <label for="filterEndDate">To Date</label>
-                    <input type="date" id="filterEndDate" onchange="fetchCatalog()">
+                    <input type="text" id="filterEndDate" placeholder="dd/mm/yyyy">
                 </div>
 
                 <button class="btn btn-secondary" onclick="resetFilters()">
@@ -918,6 +918,12 @@
         window.addEventListener('DOMContentLoaded', async () => {
             await loadMockData();
             await onUserChanged();
+            
+            // Setup auto-formatting date masks
+            setupDateMask('docReleaseDate');
+            setupDateMask('docEffectiveDate');
+            setupDateMask('filterStartDate');
+            setupDateMask('filterEndDate');
         });
 
         // Load tenants and users from simulated environment DB endpoints
@@ -1038,6 +1044,54 @@
             }
         }
 
+        // Parse dd/mm/yyyy into yyyy-mm-dd for API calls
+        function parseInputDate(value) {
+            if (!value) return "";
+            const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+            const match = value.match(regex);
+            if (match) {
+                const day = match[1];
+                const month = match[2];
+                const year = match[3];
+                return `${year}-${month}-${day}`;
+            }
+            return "";
+        }
+
+        // Apply a clean keypress mask for date inputs (dd/mm/yyyy)
+        function setupDateMask(id) {
+            const input = document.getElementById(id);
+            if (!input) return;
+            input.addEventListener('input', (e) => {
+                let value = input.value.replace(/\D/g, '');
+                if (value.length > 8) value = value.substring(0, 8);
+                if (value.length > 4) {
+                    input.value = `${value.substring(0, 2)}/${value.substring(2, 4)}/${value.substring(4)}`;
+                } else if (value.length > 2) {
+                    input.value = `${value.substring(0, 2)}/${value.substring(2)}`;
+                } else {
+                    input.value = value;
+                }
+                
+                if (id === 'filterStartDate' || id === 'filterEndDate') {
+                    onFilterDateInput();
+                }
+            });
+        }
+
+        function onFilterDateInput() {
+            const startVal = document.getElementById('filterStartDate').value;
+            const endVal = document.getElementById('filterEndDate').value;
+            
+            // Trigger fetch only if date is complete (10 chars) or empty
+            const isStartOk = !startVal || startVal.length === 10;
+            const isEndOk = !endVal || endVal.length === 10;
+            
+            if (isStartOk && isEndOk) {
+                fetchCatalog();
+            }
+        }
+
         // Fetch catalog of documents
         async function fetchCatalog() {
             try {
@@ -1049,8 +1103,14 @@
                 let url = '/api/documents?';
                 if (codeVal) url += `ma_hieu=${encodeURIComponent(codeVal)}&`;
                 if (statusVal) url += `trang_thai=${encodeURIComponent(statusVal)}&`;
-                if (startVal) url += `tu_ngay=${encodeURIComponent(startVal)}&`;
-                if (endVal) url += `den_ngay=${encodeURIComponent(endVal)}&`;
+                
+                // Parse startVal (dd/mm/yyyy -> yyyy-mm-dd)
+                const startYMD = parseInputDate(startVal);
+                if (startYMD) url += `tu_ngay=${encodeURIComponent(startYMD)}&`;
+                
+                // Parse endVal (dd/mm/yyyy -> yyyy-mm-dd)
+                const endYMD = parseInputDate(endVal);
+                if (endYMD) url += `den_ngay=${encodeURIComponent(endYMD)}&`;
 
                 const res = await fetch(url, { headers: getHeaders() });
                 if (!res.ok) throw new Error("Failed to load catalog records.");
@@ -1073,17 +1133,25 @@
                 activeDocs.map(d => `<option value="${d.id}">${d.ma_hieu} v${d.version} - ${d.ten_day_du.substring(0, 45)}...</option>`).join('');
         }
 
-        // Format dates nicely
+        // Format dates nicely to dd/mm/yyyy
         function formatDate(dateStr) {
             if (!dateStr) return 'N/A';
             const d = new Date(dateStr);
-            return d.toLocaleDateString('vi-VN');
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}/${month}/${year}`;
         }
 
         function formatDateTime(dateTimeStr) {
             if (!dateTimeStr) return 'N/A';
             const d = new Date(dateTimeStr);
-            return d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            const hours = String(d.getHours()).padStart(2, '0');
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
         }
 
         // Render documents lists
@@ -1212,9 +1280,9 @@
                 else if (log.action === 'REPLACE') tagClass = 'replace';
                 else if (log.action === 'STATUS_CHANGE') { tagClass = 'status_change'; tagLabel = 'Status'; }
 
-                // Map performer ID to mock names
+                // Map performer ID to mock names (show full name for Vietnamese names)
                 const performer = mockUsers.find(u => u.id === log.performed_by);
-                const performerName = performer ? performer.ho_ten.split(" ")[0] : 'System';
+                const performerName = performer ? performer.ho_ten : 'System';
 
                 return `
                     <div class="audit-item">
@@ -1242,8 +1310,17 @@
             const code = document.getElementById('docCode').value.trim();
             const title = document.getElementById('docTitle').value.trim();
             const issuer = document.getElementById('docIssuer').value.trim();
-            const release = document.getElementById('docReleaseDate').value;
-            const effective = document.getElementById('docEffectiveDate').value;
+            const releaseRaw = document.getElementById('docReleaseDate').value;
+            const effectiveRaw = document.getElementById('docEffectiveDate').value;
+            
+            const release = parseInputDate(releaseRaw);
+            const effective = parseInputDate(effectiveRaw);
+            
+            if (!release || !effective) {
+                showToast("Please enter valid dates in dd/mm/yyyy format.", "error");
+                return;
+            }
+            
             const supersede = supersedeSelect.value;
 
             // Submit using FormData to support UploadFile

@@ -5,7 +5,7 @@ from app.domain.tenant import Tenant
 from app.domain.user import User
 from app.core.tenant_context import TenantContext
 
-def set_tenant_context(
+async def set_tenant_context(
     x_tenant_id: str = Header(None, alias="X-Tenant-ID"),
     x_user_id: str = Header(None, alias="X-User-ID"),
     db: Session = Depends(get_db)

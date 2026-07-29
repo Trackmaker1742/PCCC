@@ -1,6 +1,7 @@
 from datetime import date
-from typing import Optional
+from typing import Optional, List
 from fastapi import APIRouter, Depends, File, UploadFile, Form, HTTPException
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.core.middleware import set_tenant_context
@@ -15,10 +16,44 @@ from app.services.upload_service import DocumentUploadService
 # Expose the API router, setting set_tenant_context to run for every endpoint
 router = APIRouter(prefix="/api", dependencies=[Depends(set_tenant_context)])
 
+# Pydantic Schemas for explicit API response serialization
+class TenantResponse(BaseModel):
+    id: str
+    ten_co_quan: str
+    ma_tenant: str
+
+    class Config:
+        from_attributes = True
+
+class UserResponse(BaseModel):
+    id: str
+    ho_ten: str
+    vai_tro: str
+    tenant_id: str
+
+    class Config:
+        from_attributes = True
+
+class DocumentResponse(BaseModel):
+    id: str
+    ma_hieu: str
+    ten_day_du: str
+    co_quan_ban_hanh: str
+    ngay_ban_hanh: date
+    ngay_hieu_luc: date
+    trang_thai: str
+    file_url: Optional[str] = None
+    file_checksum: Optional[str] = None
+    tenant_id: str
+    version: int
+
+    class Config:
+        from_attributes = True
+
 catalog_service = DocumentCatalogService()
 upload_service = DocumentUploadService()
 
-@router.get("/tenants")
+@router.get("/tenants", response_model=List[TenantResponse])
 def get_tenants(db: Session = Depends(get_db)):
     """
     Simulated helper: Lists all tenants so the frontend dashboard
@@ -26,7 +61,7 @@ def get_tenants(db: Session = Depends(get_db)):
     """
     return db.query(Tenant).all()
 
-@router.get("/users")
+@router.get("/users", response_model=List[UserResponse])
 def get_users(db: Session = Depends(get_db)):
     """
     Simulated helper: Lists all mock users so the frontend can
@@ -34,7 +69,7 @@ def get_users(db: Session = Depends(get_db)):
     """
     return db.query(User).all()
 
-@router.get("/documents")
+@router.get("/documents", response_model=List[DocumentResponse])
 def list_documents(
     ma_hieu: Optional[str] = None,
     trang_thai: Optional[DocumentStatus] = None,
@@ -53,7 +88,7 @@ def list_documents(
     }
     return catalog_service.list_documents(criteria, db)
 
-@router.post("/documents/upload")
+@router.post("/documents/upload", response_model=DocumentResponse)
 async def upload_document(
     ma_hieu: str = Form(...),
     ten_day_du: str = Form(...),
@@ -85,7 +120,7 @@ async def upload_document(
         db=db
     )
 
-@router.put("/documents/{doc_id}/replace")
+@router.put("/documents/{doc_id}/replace", response_model=DocumentResponse)
 async def replace_document(
     doc_id: str,
     file: UploadFile = File(...),
@@ -140,3 +175,4 @@ def get_audit_logs(
         query = query.filter(ChangeLogEntry.document_id == document_id)
         
     return query.order_by(ChangeLogEntry.performed_at.desc()).all()
+
