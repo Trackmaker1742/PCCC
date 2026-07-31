@@ -19,15 +19,23 @@ def startup_event():
 # Mount local upload folder to allow viewing/downloading PDFs directly
 app.mount("/stored_files", StaticFiles(directory=STORED_FILES_DIR), name="stored_files")
 
+# Mount static assets (CSS, JS, Vite-built bundles)
+STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
 # Register use-case API routers
 app.include_router(api_router)
 
-# Route to serve the rich Web UI client
-TEMPLATE_FILE = os.path.join("templates", "index.html")
+# Serve the Vite-built frontend (after `npm run build` inside /frontend)
+# The build output lands at static/dist/index.html
+BUILT_TEMPLATE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "dist", "index.html")
+# Fallback to the legacy template when the built file doesn't exist yet
+LEGACY_TEMPLATE = os.path.join("templates", "index.html")
 
 @app.get("/")
 def serve_home():
-    if not os.path.exists(TEMPLATE_FILE):
-        return {"error": "Frontend template index.html not found"}
-    return FileResponse(TEMPLATE_FILE)
-
+    if os.path.exists(BUILT_TEMPLATE):
+        return FileResponse(BUILT_TEMPLATE)
+    if os.path.exists(LEGACY_TEMPLATE):
+        return FileResponse(LEGACY_TEMPLATE)
+    return {"error": "Frontend not built. Run `npm run build` inside /frontend."}
