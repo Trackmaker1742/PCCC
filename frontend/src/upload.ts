@@ -41,21 +41,29 @@ export async function onUploadSubmitted(e: SubmitEvent): Promise<void> {
   const code      = (document.getElementById('docCode')          as HTMLInputElement).value.trim();
   const title     = (document.getElementById('docTitle')         as HTMLTextAreaElement).value.trim();
   const issuer    = (document.getElementById('docIssuer')        as HTMLInputElement).value.trim();
-  const release   = parseInputDate((document.getElementById('docReleaseDate')   as HTMLInputElement).value);
-  const effective = parseInputDate((document.getElementById('docEffectiveDate') as HTMLInputElement).value);
-  const supersede = (document.getElementById('supersedeSelect')  as HTMLSelectElement).value;
+  const releaseRaw   = (document.getElementById('docReleaseDate')   as HTMLInputElement).value.trim();
+  const effectiveRaw = (document.getElementById('docEffectiveDate') as HTMLInputElement).value.trim();
 
-  if (!release || !effective) {
-    showToast('Vui lòng nhập ngày hợp lệ dạng dd/mm/yyyy.', 'error');
+  const release   = releaseRaw ? parseInputDate(releaseRaw) : null;
+  const effective = effectiveRaw ? parseInputDate(effectiveRaw) : null;
+
+  if (releaseRaw && !release) {
+    showToast('Ngày ban hành nhập vào không đúng định dạng dd/mm/yyyy.', 'error');
     return;
   }
+  if (effectiveRaw && !effective) {
+    showToast('Ngày hiệu lực nhập vào không đúng định dạng dd/mm/yyyy.', 'error');
+    return;
+  }
+
+  const supersede = (document.getElementById('supersedeSelect')  as HTMLSelectElement).value;
 
   const formData = new FormData();
   formData.append('ma_hieu',           code);
   formData.append('ten_day_du',        title);
   formData.append('co_quan_ban_hanh',  issuer);
-  formData.append('ngay_ban_hanh',     release);
-  formData.append('ngay_hieu_luc',     effective);
+  if (release) formData.append('ngay_ban_hanh', release);
+  if (effective) formData.append('ngay_hieu_luc', effective);
   if (supersede) formData.append('replaces_document_id', supersede);
   formData.append('file', file);
 

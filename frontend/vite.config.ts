@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  base: '/static/dist/',
   // The Vite dev server proxies API calls to the FastAPI backend.
   // When building for production the output lands in ../static/dist
   // which is served by FastAPI under /static/dist/.

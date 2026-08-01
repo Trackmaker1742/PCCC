@@ -39,8 +39,8 @@ class DocumentResponse(BaseModel):
     ma_hieu: str
     ten_day_du: str
     co_quan_ban_hanh: str
-    ngay_ban_hanh: date
-    ngay_hieu_luc: date
+    ngay_ban_hanh: Optional[date] = None
+    ngay_hieu_luc: Optional[date] = None
     trang_thai: str
     file_url: Optional[str] = None
     file_checksum: Optional[str] = None
@@ -93,8 +93,8 @@ async def upload_document(
     ma_hieu: str = Form(...),
     ten_day_du: str = Form(...),
     co_quan_ban_hanh: str = Form(...),
-    ngay_ban_hanh: date = Form(...),
-    ngay_hieu_luc: date = Form(...),
+    ngay_ban_hanh: Optional[date] = Form(None),
+    ngay_hieu_luc: Optional[date] = Form(None),
     replaces_document_id: Optional[str] = Form(None),
     file: UploadFile = File(...),
     db: Session = Depends(get_db)

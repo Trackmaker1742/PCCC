@@ -17,10 +17,12 @@ def startup_event():
     seed_db()
 
 # Mount local upload folder to allow viewing/downloading PDFs directly
+os.makedirs(STORED_FILES_DIR, exist_ok=True)
 app.mount("/stored_files", StaticFiles(directory=STORED_FILES_DIR), name="stored_files")
 
 # Mount static assets (CSS, JS, Vite-built bundles)
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+os.makedirs(STATIC_DIR, exist_ok=True)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 # Register use-case API routers
