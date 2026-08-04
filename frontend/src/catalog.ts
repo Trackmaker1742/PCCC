@@ -124,7 +124,7 @@ function renderCatalog(docs: Document[]): void {
 
       const archiveBtn =
         isApprover && doc.trang_thai === 'HIEU_LUC'
-          ? `<button class="btn btn-secondary btn-sm" style="color: var(--status-expired); border-color: rgba(239,68,68,0.2);" data-action="archive" data-id="${doc.id}">
+          ? `<button class="btn btn-secondary btn-sm" style="color: var(--status-expired); border-color: var(--status-border-expired);" data-action="archive" data-id="${doc.id}">
                <i class="fa-solid fa-box-archive"></i> Lưu trữ / Thu hồi
              </button>`
           : '';

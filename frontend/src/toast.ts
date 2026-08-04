@@ -17,10 +17,10 @@ export function showToast(message: string, type: ToastType = 'success'): void {
 
   if (type === 'success') {
     toastIcon.className = 'fa-solid fa-circle-check';
-    toastIcon.style.color = '#34d399';
+    toastIcon.style.color = 'var(--status-active)';
   } else {
     toastIcon.className = 'fa-solid fa-circle-exclamation';
-    toastIcon.style.color = '#f87171';
+    toastIcon.style.color = 'var(--status-expired)';
   }
 
   toast.className = `toast show ${type}`;
