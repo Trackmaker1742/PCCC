@@ -89,3 +89,12 @@ export function initModal(): void {
     void onReplaceSubmitted(e as SubmitEvent);
   });
 }
+
+import { setupDragAndDrop } from './utils/dragdrop';
+
+export function initModalDragAndDrop(): void {
+  const trigger = document.querySelector('#replaceModal .file-upload-trigger') as HTMLElement | null;
+  if (trigger && replaceFileInput) {
+    setupDragAndDrop(trigger, replaceFileInput, onReplaceFileSelected);
+  }
+}

@@ -16,8 +16,8 @@ import { setupDateMask } from './utils/dates';
 import { showToast } from './toast';
 import { fetchAndRenderCatalog, resetFilters, updateFormVisibility } from './catalog';
 import { fetchAndRenderAudits } from './audit';
-import { onFileSelected, onUploadSubmitted } from './upload';
-import { initModal } from './modal';
+import { onFileSelected, onUploadSubmitted, initUploadDragAndDrop } from './upload';
+import { initModal, initModalDragAndDrop } from './modal';
 
 // ---- DOM References ---------------------------------------------------------
 const userSelect        = document.getElementById('userSelect')        as HTMLSelectElement;
@@ -99,6 +99,10 @@ function wireEventListeners(): void {
 
   // Replace PDF modal
   initModal();
+
+  // Drag and Drop initializations
+  initUploadDragAndDrop();
+  initModalDragAndDrop();
 }
 
 // ---- Bootstrap --------------------------------------------------------------

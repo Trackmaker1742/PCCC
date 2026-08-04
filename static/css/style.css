@@ -303,7 +303,8 @@
             color: var(--text-secondary);
         }
 
-        .file-upload-trigger:hover {
+        .file-upload-trigger:hover,
+        .file-upload-trigger.dragover {
             border-color: var(--accent-primary);
             background: rgba(239, 68, 68, 0.05);
             color: var(--text-primary);

@@ -92,3 +92,12 @@ export async function onUploadSubmitted(e: SubmitEvent): Promise<void> {
     btnSpan.textContent = 'Nạp Văn Bản';
   }
 }
+
+import { setupDragAndDrop } from './utils/dragdrop';
+
+export function initUploadDragAndDrop(): void {
+  const trigger = document.querySelector('aside.panel .file-upload-trigger') as HTMLElement | null;
+  if (trigger && docFileInput) {
+    setupDragAndDrop(trigger, docFileInput, onFileSelected);
+  }
+}
